@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "module": "CommonJS",
+    "target": "ES6",  // or ESNext if using latest features
+    "outDir": "./dist"  // Ensure compiled files go to dist
+  }
+}
