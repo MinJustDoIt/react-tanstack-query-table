@@ -1,14 +1,11 @@
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-    useQuery,
-    useQueryClient
-} from "@tanstack/react-query";
-import {
-    createColumnHelper,
-    getCoreRowModel,
-    getSortedRowModel,
-    PaginationState,
-    SortingState,
-    useReactTable,
+  createColumnHelper,
+  getCoreRowModel,
+  getSortedRowModel,
+  PaginationState,
+  SortingState,
+  useReactTable,
 } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { useDebounce } from "use-debounce";
@@ -64,7 +61,7 @@ const EmployeeTable = () => {
   //Fetch departments
   const { data: departments } = useQuery({
     queryKey: ["departments"],
-    queryFn: () => fetchDepartments,
+    queryFn: fetchDepartments,
   });
 
   //Construct filters
@@ -134,12 +131,50 @@ const EmployeeTable = () => {
           >
             <option value="">All Departments</option>
             {departments?.map((d) => (
-                <option key={d.id} value={d.name}>
-                    {d.name}
-                </option>
+              <option key={d.id} value={d.name}>
+                {d.name}
+              </option>
             ))}
           </select>
         </div>
+        <div className="flex gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Employed After
+            </label>
+            <input
+              type="date"
+              className="p-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+              onChange={(e) =>
+                setEmployedDateFilter((prev) => ({
+                  ...prev,
+                  after: e.target.value,
+                }))
+              }
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Employed Before
+            </label>
+            <input
+              type="date"
+              className="p-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+              onChange={(e) =>
+                setEmployedDateFilter((prev) => ({
+                  ...prev,
+                  before: e.target.value,
+                }))
+              }
+            />
+          </div>
+        </div>
+        <button
+          onClick={() => setEditingEmployee({} as Employee)}
+          className="h-[42px] px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        >
+          Add Employee
+        </button>
       </div>
     </div>
   );
