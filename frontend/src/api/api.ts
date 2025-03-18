@@ -38,6 +38,13 @@ export const createEmployee = async (employee: Omit<Employee, "id">) => {
   return response.data; // Return the created employee data
 };
 
+// Fetch an employee by ID
+export const fetchEmployeeById = async (id: number): Promise<Employee> => {
+  // Make a GET request to fetch the employee by ID
+  const response = await axios.get<Employee>(`${API_URL}/employees/${id}`);
+  return response.data; // Return the employee data
+};
+
 // Update an existing employee by ID
 export const updateEmployee = async (
   id: number,

@@ -59,6 +59,8 @@ const EmployeeTable = () => {
     after?: string;
   }>({});
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   //Fetch departments
   const { data: departments } = useQuery({
@@ -108,6 +110,11 @@ const EmployeeTable = () => {
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
+
+  const handleEdit = (id: number) => {
+    setSelectedEmployeeId(id); // Set the selected employee ID
+    setIsModalOpen(true); // Open the modal
+  };
 
   return (
     <div className="p-4 max-w-7xl mx-auto">
@@ -172,7 +179,10 @@ const EmployeeTable = () => {
           </div>
         </div>
         <button
-          onClick={() => setEditingEmployee({} as Employee)}
+          onClick={() => {
+            setSelectedEmployeeId(null); // Reset selected employee ID
+            setIsModalOpen(true); // Open the modal
+          }}
           className="h-[42px] px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
         >
           Add Employee
@@ -208,7 +218,7 @@ const EmployeeTable = () => {
             {table.getRowModel().rows.map((row) => (
               <tr
                 key={row.id}
-                onClick={() => setEditingEmployee(row.original)}
+                onClick={() => handleEdit(row.original.id)}
                 className="hover:bg-gray-50 cursor-pointer"
               >
                 {row.getVisibleCells().map((cell) => (
@@ -216,6 +226,9 @@ const EmployeeTable = () => {
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
+                <td>
+                  <button onClick={() => handleEdit(row.original.id)}>Edit</button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -260,14 +273,22 @@ const EmployeeTable = () => {
       </div>
 
       {/* Edit/Create Modal */}
-      <EmployeeModal
-        employee={editingEmployee}
-        departments={departments || []}
-        onClose={() => setEditingEmployee(null)}
-        onSuccess={() =>
-          queryClient.invalidateQueries({ queryKey: ["employees"] })
-        }
-      />
+      {isModalOpen && (
+        <EmployeeModal
+          isOpen={isModalOpen} // Pass isOpen explicitly
+          onClose={() => setIsModalOpen(false)}
+          employeeId={selectedEmployeeId ?? null} // Pass the selected employee ID
+          departments={departments ?? []} // Pass the departments data
+          onSuccess={() => {
+            setIsModalOpen(false);
+            queryClient.invalidateQueries({ queryKey: ["employees"] });
+          }}
+          onSave={() => {
+            setIsModalOpen(false);
+            queryClient.invalidateQueries({ queryKey: ["employees"] });
+          }}
+        />
+      )}
     </div>
   );
 };

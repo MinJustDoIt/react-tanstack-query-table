@@ -1,32 +1,38 @@
+import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { updateEmployee, createEmployee } from "../api/api";
+import { updateEmployee, createEmployee, fetchEmployeeById } from "../api/api";
 import { Employee, Department } from "../types";
 
 interface EmployeeModalProps {
-  readonly employee?: Employee | null;
+  readonly isOpen: boolean; // Add isOpen prop
+  readonly employeeId?: number | null;
   readonly departments: Department[];
   readonly onClose: () => void;
   readonly onSuccess: () => void;
+  readonly onSave?: () => void; // Add onSave as an optional property
 }
 
 export default function EmployeeModal({
-  employee,
+  isOpen, // Use isOpen prop
+  employeeId,
   departments,
   onClose,
   onSuccess,
 }: EmployeeModalProps) {
   const queryClient = useQueryClient();
-  const isEditMode = !!employee?.id;
+  const isEditMode = !!employeeId;
+  const [employeeData, setEmployeeData] = useState<Employee | null>(null);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<Employee>({
-    defaultValues: employee || {
+    defaultValues: employeeData || {
       name: "",
       age: 18,
       position: "",
@@ -35,9 +41,29 @@ export default function EmployeeModal({
     },
   });
 
+  useEffect(() => {
+    if (employeeId) {
+      fetchEmployeeById(Number(employeeId)).then((data) => {
+        setEmployeeData(data);
+        reset(data);
+      });
+    } else {
+      setEmployeeData(null);
+      reset({
+        name: "",
+        age: 18,
+        position: "",
+        department: "",
+        employedOn: new Date(), // Ensure proper Date object
+      });
+    }
+  }, [employeeId, reset]);
+
   const mutation = useMutation({
     mutationFn: (data: Employee) =>
-      isEditMode ? updateEmployee(employee.id, data) : createEmployee(data),
+      isEditMode
+        ? updateEmployee(Number(employeeId), data)
+        : createEmployee(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
       onSuccess();
@@ -46,11 +72,9 @@ export default function EmployeeModal({
   });
 
   return (
-    <Dialog open={!!employee} onClose={onClose} className="relative z-50">
-      {/* Backdrop */}
+    <Dialog open={isOpen} onClose={onClose} className="relative z-50">
+      {/* Use isOpen instead of !!employeeId */}
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-
-      {/* Modal container */}
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <DialogPanel className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
           <div className="flex justify-between items-center mb-4">
@@ -69,7 +93,6 @@ export default function EmployeeModal({
             onSubmit={handleSubmit((data) => mutation.mutate(data))}
             className="space-y-4"
           >
-            {/* Name Field */}
             <div>
               <label className="block text-sm font-medium mb-1">
                 Full Name *
@@ -87,15 +110,12 @@ export default function EmployeeModal({
               )}
             </div>
 
-            {/* Age Field */}
             <div>
               <label className="block text-sm font-medium mb-1">Age *</label>
               <input
                 type="number"
                 {...register("age", {
                   required: "Age is required",
-                  min: { value: 18, message: "Minimum age is 18" },
-                  max: { value: 65, message: "Maximum age is 65" },
                 })}
                 className={`w-full p-2 border rounded-md ${
                   errors.age ? "border-red-500" : "border-gray-300"
@@ -108,7 +128,6 @@ export default function EmployeeModal({
               )}
             </div>
 
-            {/* Position Field */}
             <div>
               <label className="block text-sm font-medium mb-1">
                 Position *
@@ -126,7 +145,6 @@ export default function EmployeeModal({
               )}
             </div>
 
-            {/* Department Dropdown */}
             <div>
               <label className="block text-sm font-medium mb-1">
                 Department *
@@ -153,13 +171,13 @@ export default function EmployeeModal({
               )}
             </div>
 
-            {/* Employment Date */}
             <div>
               <label className="block text-sm font-medium mb-1">
                 Employment Date *
               </label>
               <input
                 type="date"
+                value={new Date().toISOString().split("T")[0]}
                 {...register("employedOn", {
                   required: "Employment date is required",
                 })}
@@ -174,7 +192,6 @@ export default function EmployeeModal({
               )}
             </div>
 
-            {/* Form Actions */}
             <div className="flex justify-end gap-3 mt-6">
               <button
                 type="button"
