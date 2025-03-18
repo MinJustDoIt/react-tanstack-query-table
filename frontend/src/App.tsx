@@ -1,10 +1,10 @@
 import "./App.css";
-import EmployeeTable from "./components/EmployeeTable";
+import Home from "./home/Home";
 
 function App() {
   return (
     <div>
-      <EmployeeTable />
+      <Home />
     </div>
   );
 }

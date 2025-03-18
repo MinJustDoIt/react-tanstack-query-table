@@ -3,7 +3,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import EmployeeModal from "./EmployeeModal";
+import EmployeeModal from "./modals/EmployeeModal";
 import { useTableControls } from "../hooks/useTableControls";
 import { useModal } from "../hooks/useModal";
 import { useEmployees, useDepartments } from "../hooks/useApi";
