@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createColumnHelper,
+  flexRender,
   getCoreRowModel,
   getSortedRowModel,
   PaginationState,
@@ -175,6 +176,34 @@ const EmployeeTable = () => {
         >
           Add Employee
         </button>
+      </div>
+
+      {/* Table */}
+      <div className="border rounded-lg overflow-hidden shadow-sm">
+        <table className="w-full">
+          <thead className="bg-gray-50">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th
+                    key={header.id}
+                    className="px-4 py-3 text-left text-sm font-semibold text-gray-700 cursor-pointer"
+                    onClick={header.column.getToggleSortingHandler()}
+                  >
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                    {{
+                      asc: "↑",
+                      desc: "↓",
+                    }[header.column.getIsSorted() as string] ?? null}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+        </table>
       </div>
     </div>
   );
