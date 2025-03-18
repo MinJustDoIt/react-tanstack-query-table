@@ -7,7 +7,7 @@ interface TablePaginationProps<T> {
 
 export function TablePagination<T>({ table, totalRecords = 0 }: TablePaginationProps<T>) {
   return (
-    <div className="mt-4 flex items-center justify-between">
+    <div className="mt-4 flex items-center justify-end gap-4">
       <div className="flex items-center gap-4">
         <span className="text-sm text-gray-700">
           Showing {table.getRowModel().rows.length} of {totalRecords} results
