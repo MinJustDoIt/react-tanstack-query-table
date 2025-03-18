@@ -12,6 +12,7 @@ import { useMemo, useState } from "react";
 import { useDebounce } from "use-debounce";
 import { fetchDepartments, fetchEmployees } from "../api/api";
 import { Employee, EmployeesResponse } from "../types";
+import EmployeeModal from "./EmployeeModal";
 
 const columnHelper = createColumnHelper<Employee>();
 
@@ -257,6 +258,16 @@ const EmployeeTable = () => {
           </button>
         </div>
       </div>
+
+      {/* Edit/Create Modal */}
+      <EmployeeModal
+        employee={editingEmployee}
+        departments={departments || []}
+        onClose={() => setEditingEmployee(null)}
+        onSuccess={() =>
+          queryClient.invalidateQueries({ queryKey: ["employees"] })
+        }
+      />
     </div>
   );
 };
