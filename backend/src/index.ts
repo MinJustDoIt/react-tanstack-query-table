@@ -3,12 +3,13 @@ import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 import { faker } from "@faker-js/faker"; // Import faker.js
 
-const cors = require("cors");
 // Setup Express application
 const app = express();
 const PORT = 5555;
+const cors = require("cors");
 
 // Middleware
+/** updated the cors origin to match the frontend port */
 app.use(cors({ origin: "http://localhost:5173" }));
 app.use(bodyParser.json());
 
@@ -141,9 +142,12 @@ app.get("/employees", (req: Request, res: Response) => {
   }
 
   // Sort employees
+  /** updated the sorting logic to handle order */
   filteredEmployees.sort((a, b) => {
-    if (a[sort as keyof Employee] < b[sort as keyof Employee]) return isDescending ? 1 : -1;
-    if (a[sort as keyof Employee] > b[sort as keyof Employee]) return isDescending ? -1 : 1;
+    if (a[sort as keyof Employee] < b[sort as keyof Employee])
+      return isDescending ? 1 : -1;
+    if (a[sort as keyof Employee] > b[sort as keyof Employee])
+      return isDescending ? -1 : 1;
     return 0;
   });
 
