@@ -94,7 +94,7 @@ const columns = [
     }),
     columnHelper.accessor("department", {
         header: "Department",
-        enableSorting: false,
+        enableSorting: true,
     }),
     columnHelper.display({
         id: "actions",
