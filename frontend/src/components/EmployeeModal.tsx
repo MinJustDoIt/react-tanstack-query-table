@@ -71,7 +71,7 @@ export default function EmployeeModal({
 
   const mutation = useMutation({
     mutationFn: (data: Employee) => {
-      // If employedOn is a string, convert it to a Date before sending to API
+      // Convert employedOn to Date if it's a string
       if (typeof data.employedOn === "string") {
         data = {
           ...data,
@@ -135,6 +135,7 @@ export default function EmployeeModal({
                 type="number"
                 {...register("age", {
                   required: "Age is required",
+                  valueAsNumber: true, // Convert string to number when getting value
                 })}
                 className={`w-full p-2 border rounded-md ${
                   errors.age ? "border-red-500" : "border-gray-300"
