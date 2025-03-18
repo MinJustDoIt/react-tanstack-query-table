@@ -50,7 +50,7 @@ const EmployeeTable = () => {
     pageSize: 10,
   });
   const [nameFilter, setNameFilter] = useState<string | undefined>("");
-  const [debouncedName, setDebouncedName] = useDebounce(nameFilter, 300);
+  const [debouncedName] = useDebounce(nameFilter, 300);
   const [departmentFilter, setDepartmentFilter] = useState<string | undefined>(
     ""
   );
@@ -59,7 +59,9 @@ const EmployeeTable = () => {
     after?: string;
   }>({});
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(
+    null
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   //Fetch departments
@@ -80,7 +82,7 @@ const EmployeeTable = () => {
   );
 
   // Fetch employees
-  const { data, isPending } = useQuery<EmployeesResponse>({
+  const { data, isLoading } = useQuery<EmployeesResponse>({
     queryKey: ["employees", pagination, sorting, filters],
     queryFn: () =>
       fetchEmployees(
@@ -216,18 +218,16 @@ const EmployeeTable = () => {
           </thead>
           <tbody className="divide-y divide-gray-200">
             {table.getRowModel().rows.map((row) => (
-              <tr
-                key={row.id}
-                onClick={() => handleEdit(row.original.id)}
-                className="hover:bg-gray-50 cursor-pointer"
-              >
+              <tr key={row.id} className="hover:bg-gray-50 cursor-pointer">
                 {row.getVisibleCells().map((cell) => (
                   <td key={cell.id} className="px-4 py-3 text-sm text-gray-700">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
                 <td>
-                  <button onClick={() => handleEdit(row.original.id)}>Edit</button>
+                  <button onClick={() => handleEdit(row.original.id)}>
+                    Edit
+                  </button>
                 </td>
               </tr>
             ))}
