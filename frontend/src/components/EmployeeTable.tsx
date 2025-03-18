@@ -1,4 +1,3 @@
-import { useQueryClient } from "@tanstack/react-query";
 import {
   getCoreRowModel,
   getSortedRowModel,
@@ -8,14 +7,12 @@ import EmployeeModal from "./EmployeeModal";
 import { useTableControls } from "../hooks/useTableControls";
 import { useModal } from "../hooks/useModal";
 import { useEmployees, useDepartments } from "../hooks/useApi";
-import { useEmployeeColumns } from "../hooks/useEmployeeColumns"; // Updated import path
-import { Table } from "./common/Table";
-import { TablePagination } from "./common/TablePagination";
-import { FilterBar } from "./common/FilterBar";
+import { useEmployeeColumns } from "../hooks/useEmployeeColumns";
+import { Table } from "./table/Table";
+import { TablePagination } from "./table/TablePagination";
+import { FilterBar } from "./filters/FilterBar";
 
 const EmployeeTable = () => {
-  const queryClient = useQueryClient();
-
   // Use custom hooks for table controls and modal
   const {
     sorting,

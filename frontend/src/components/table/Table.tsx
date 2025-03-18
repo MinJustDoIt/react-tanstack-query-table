@@ -11,7 +11,6 @@ export function Table<T>({
   isLoading = false,
   emptyMessage = "No data available",
 }: Readonly<TableProps<T>>) {
-  // Extract the nested ternary into a separate function
   const renderTableBody = () => {
     // Loading state
     if (isLoading) {
@@ -78,9 +77,7 @@ export function Table<T>({
             </tr>
           ))}
         </thead>
-        <tbody className="divide-y divide-gray-200">
-          {renderTableBody()}
-        </tbody>
+        <tbody className="divide-y divide-gray-200">{renderTableBody()}</tbody>
       </table>
     </div>
   );
