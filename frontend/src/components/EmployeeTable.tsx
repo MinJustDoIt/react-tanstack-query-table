@@ -220,6 +220,43 @@ const EmployeeTable = () => {
           </tbody>
         </table>
       </div>
+      {/* Pagination */}
+      <div className="mt-4 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-gray-700">
+            Showing {data?.data.length ?? 0} of {data?.totalRecords ?? 0}{" "}
+            results
+          </span>
+          <select
+            value={pagination.pageSize}
+            onChange={(e) => table.setPageSize(Number(e.target.value))}
+            className="p-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+          >
+            {[10, 20, 30, 40, 50].map((pageSize) => (
+              <option key={pageSize} value={pageSize}>
+                Show {pageSize}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            className="px-4 py-3 border rounded-md enabled:hover:bg-gray-500 disabled:opactiy-50"
+          >
+            Previous
+          </button>
+          <button
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            className="px-4 py-3 border rounded-md enabled:hover:bg-gray-500 disabled:opactiy-50"
+          >
+            Next
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
