@@ -44,6 +44,16 @@ export default function EmployeeModal({
   useEffect(() => {
     if (employeeId) {
       fetchEmployeeById(Number(employeeId)).then((data) => {
+        // Format the date properly before setting in form
+        if (data.employedOn) {
+          const dateObj = new Date(data.employedOn);
+          // Store formatted date for the form
+          const formattedDate = dateObj.toISOString().split("T")[0];
+          data = {
+            ...data,
+            employedOn: formattedDate, // Keep as string format for the form input
+          };
+        }
         setEmployeeData(data);
         reset(data);
       });
@@ -54,16 +64,25 @@ export default function EmployeeModal({
         age: 18,
         position: "",
         department: "",
-        employedOn: new Date(), // Ensure proper Date object
+        employedOn: new Date(), // Use Date object directly
       });
     }
   }, [employeeId, reset]);
 
   const mutation = useMutation({
-    mutationFn: (data: Employee) =>
-      isEditMode
+    mutationFn: (data: Employee) => {
+      // If employedOn is a string, convert it to a Date before sending to API
+      if (typeof data.employedOn === "string") {
+        data = {
+          ...data,
+          employedOn: new Date(data.employedOn),
+        };
+      }
+
+      return isEditMode
         ? updateEmployee(Number(employeeId), data)
-        : createEmployee(data),
+        : createEmployee(data);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
       onSuccess();
@@ -177,13 +196,14 @@ export default function EmployeeModal({
               </label>
               <input
                 type="date"
-                value={new Date().toISOString().split("T")[0]}
                 {...register("employedOn", {
                   required: "Employment date is required",
+                  // Don't convert to Date object here since we need string format for the input
                 })}
                 className={`w-full p-2 border rounded-md ${
                   errors.employedOn ? "border-red-500" : "border-gray-300"
                 }`}
+                // No defaultValue needed - the form will handle it
               />
               {errors.employedOn && (
                 <p className="text-red-500 text-sm mt-1">

@@ -14,32 +14,6 @@ import { fetchDepartments, fetchEmployees } from "../api/api";
 import { Employee, EmployeesResponse } from "../types";
 import EmployeeModal from "./EmployeeModal";
 
-const columnHelper = createColumnHelper<Employee>();
-
-const columns = [
-  columnHelper.accessor("name", {
-    header: "Name",
-    enableSorting: true,
-  }),
-  columnHelper.accessor("age", {
-    header: "Age",
-    enableSorting: true,
-  }),
-  columnHelper.accessor("position", {
-    header: "Position",
-    enableSorting: true,
-  }),
-  columnHelper.accessor("employedOn", {
-    header: "Employed On",
-    cell: (info) => new Date(info.getValue()).toLocaleDateString(),
-    enableSorting: true,
-  }),
-  columnHelper.accessor("department", {
-    header: "Department",
-    enableSorting: false,
-  }),
-];
-
 const EmployeeTable = () => {
   const queryClient = useQueryClient();
   const [sorting, setSorting] = useState<SortingState>([
@@ -93,6 +67,49 @@ const EmployeeTable = () => {
       ),
     placeholderData: (previousData) => previousData,
   });
+  const columnHelper = createColumnHelper<Employee>();
+
+const columns = [
+    columnHelper.accessor("name", {
+        header: "Name",
+        enableSorting: true,
+    }),
+    columnHelper.accessor("age", {
+        header: "Age",
+        enableSorting: true,
+    }),
+    columnHelper.accessor("position", {
+        header: "Position",
+        enableSorting: true,
+    }),
+    columnHelper.accessor("employedOn", {
+        header: "Employed On",
+        cell: (info) => new Date(info.getValue()).toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        }),
+        enableSorting: true,
+    }),
+    columnHelper.accessor("department", {
+        header: "Department",
+        enableSorting: false,
+    }),
+    columnHelper.display({
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) => (
+            <div className="flex gap-2">
+                <button
+                    onClick={() => handleEdit(row.original.id)}
+                    className="px-2 py-1 text-blue-600 hover:bg-blue-50 rounded-md"
+                >
+                    Edit
+                </button>
+            </div>
+        ),
+    }),
+];
 
   // Initialize the table
   const table = useReactTable({
@@ -117,6 +134,8 @@ const EmployeeTable = () => {
     setSelectedEmployeeId(id); // Set the selected employee ID
     setIsModalOpen(true); // Open the modal
   };
+
+  
 
   return (
     <div className="p-4 max-w-7xl mx-auto">
@@ -224,11 +243,11 @@ const EmployeeTable = () => {
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
-                <td>
+                {/* <td>
                   <button onClick={() => handleEdit(row.original.id)}>
                     Edit
                   </button>
-                </td>
+                </td> */}
               </tr>
             ))}
           </tbody>
