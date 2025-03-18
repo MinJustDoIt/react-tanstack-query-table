@@ -53,32 +53,36 @@ export function Table<T>({
   };
 
   return (
-    <div className="border rounded-lg overflow-hidden shadow-sm">
-      <table className="w-full">
-        <thead className="bg-gray-50">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th
-                  key={header.id}
-                  className="px-4 py-3 text-left text-sm font-semibold text-gray-700 cursor-pointer"
-                  onClick={header.column.getToggleSortingHandler()}
-                >
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
-                  {{
-                    asc: "↑",
-                    desc: "↓",
-                  }[header.column.getIsSorted() as string] ?? null}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody className="divide-y divide-gray-200">{renderTableBody()}</tbody>
-      </table>
+    <div className="mt-2 border rounded-lg overflow-hidden shadow-sm h-[60vh]">
+      <div className="overflow-y-auto overflow-x-auto h-full">
+        <table className="w-full min-w-full">
+          <thead className="bg-gray-50 sticky top-0 z-10">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th
+                    key={header.id}
+                    className="px-4 py-3 text-left text-sm font-semibold text-gray-700 cursor-pointer whitespace-nowrap"
+                    onClick={header.column.getToggleSortingHandler()}
+                  >
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                    {{
+                      asc: "↑",
+                      desc: "↓",
+                    }[header.column.getIsSorted() as string] ?? null}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {renderTableBody()}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

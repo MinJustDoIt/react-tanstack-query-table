@@ -87,11 +87,6 @@ const Employees = () => {
         onAddNew={() => openModal(null)}
       />
 
-      {/* Using our reusable TablePagination component */}
-      <div className="mb-4">
-        <TablePagination table={table} totalRecords={data?.totalRecords ?? 0} />
-      </div>
-
       {/* Using our reusable Table component */}
       <Table
         table={table}
