@@ -1,30 +1,39 @@
-import { useEffect, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { updateEmployee, createEmployee, fetchEmployeeById } from "../api/api";
 import { Employee, Department } from "../types";
+import { useEmployee, useEmployeeMutation } from "../hooks/useApi";
+import { FormField } from "./common/FormField"; // Import the FormField component
 
 interface EmployeeModalProps {
-  readonly isOpen: boolean; // Add isOpen prop
+  readonly isOpen: boolean;
   readonly employeeId?: number | null;
   readonly departments: Department[];
   readonly onClose: () => void;
   readonly onSuccess: () => void;
-  readonly onSave?: () => void; // Add onSave as an optional property
 }
 
 export default function EmployeeModal({
-  isOpen, // Use isOpen prop
+  isOpen,
   employeeId,
   departments,
   onClose,
   onSuccess,
 }: EmployeeModalProps) {
-  const queryClient = useQueryClient();
   const isEditMode = !!employeeId;
-  const [employeeData, setEmployeeData] = useState<Employee | null>(null);
+
+  // Use our custom hook to fetch employee data
+  const { data: employeeData, isLoading: isLoadingEmployee } = useEmployee(
+    employeeId ?? null,
+    {
+      queryKey: ["employee", employeeId],
+      enabled: isEditMode,
+    }
+  );
+
+  // Use our custom hook for employee mutation
+  const { mutate, isPending: isMutating } = useEmployeeMutation(isEditMode);
 
   const {
     register,
@@ -32,7 +41,7 @@ export default function EmployeeModal({
     formState: { errors },
     reset,
   } = useForm<Employee>({
-    defaultValues: employeeData || {
+    defaultValues: {
       name: "",
       age: 18,
       position: "",
@@ -41,58 +50,44 @@ export default function EmployeeModal({
     },
   });
 
+  // Reset form when employee data changes or mode changes
   useEffect(() => {
-    if (employeeId) {
-      fetchEmployeeById(Number(employeeId)).then((data) => {
-        // Format the date properly before setting in form
-        if (data.employedOn) {
-          const dateObj = new Date(data.employedOn);
-          // Store formatted date for the form
-          const formattedDate = dateObj.toISOString().split("T")[0];
-          data = {
-            ...data,
-            employedOn: formattedDate, // Keep as string format for the form input
-          };
-        }
-        setEmployeeData(data);
-        reset(data);
+    if (employeeData) {
+      // Format the date properly before setting in form
+      const formattedDate = new Date(employeeData.employedOn)
+        .toISOString()
+        .split("T")[0];
+
+      reset({
+        ...employeeData,
+        employedOn: formattedDate,
       });
-    } else {
-      setEmployeeData(null);
+    } else if (!isEditMode) {
       reset({
         name: "",
         age: 18,
         position: "",
         department: "",
-        employedOn: new Date(), // Use Date object directly
+        employedOn: new Date().toISOString().split("T")[0],
       });
     }
-  }, [employeeId, reset]);
+  }, [employeeData, isEditMode, reset]);
 
-  const mutation = useMutation({
-    mutationFn: (data: Employee) => {
-      // Convert employedOn to Date if it's a string
-      if (typeof data.employedOn === "string") {
-        data = {
-          ...data,
-          employedOn: new Date(data.employedOn),
-        };
+  // Handle form submission
+  const onSubmit = (data: Employee) => {
+    mutate(
+      {
+        ...(isEditMode && employeeId ? { id: employeeId } : {}),
+        ...data,
+      },
+      {
+        onSuccess: onSuccess,
       }
-
-      return isEditMode
-        ? updateEmployee(Number(employeeId), data)
-        : createEmployee(data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["employees"] });
-      onSuccess();
-      onClose();
-    },
-  });
+    );
+  };
 
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
-      {/* Use isOpen instead of !!employeeId */}
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <DialogPanel className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
@@ -108,128 +103,97 @@ export default function EmployeeModal({
             </button>
           </div>
 
-          <form
-            onSubmit={handleSubmit((data) => mutation.mutate(data))}
-            className="space-y-4"
-          >
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Full Name *
-              </label>
-              <input
-                {...register("name", { required: "Name is required" })}
-                className={`w-full p-2 border rounded-md ${
-                  errors.name ? "border-red-500" : "border-gray-300"
-                }`}
-              />
-              {errors.name && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.name.message}
-                </p>
-              )}
-            </div>
+          {isLoadingEmployee && isEditMode ? (
+            <div className="text-center py-4">Loading employee data...</div>
+          ) : (
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              {/* Replace direct input fields with FormField components */}
+              <FormField label="Full Name" error={errors.name} required>
+                <input
+                  id="fullName"
+                  {...register("name", { required: "Name is required" })}
+                  className={`w-full p-2 border rounded-md ${
+                    errors.name ? "border-red-500" : "border-gray-300"
+                  }`}
+                />
+              </FormField>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">Age *</label>
-              <input
-                type="number"
-                {...register("age", {
-                  required: "Age is required",
-                  valueAsNumber: true, // Convert string to number when getting value
-                })}
-                className={`w-full p-2 border rounded-md ${
-                  errors.age ? "border-red-500" : "border-gray-300"
-                }`}
-              />
-              {errors.age && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.age.message}
-                </p>
-              )}
-            </div>
+              <FormField label="Age" error={errors.age} required>
+                <input
+                  id="age"
+                  type="number"
+                  {...register("age", {
+                    required: "Age is required",
+                    valueAsNumber: true,
+                  })}
+                  className={`w-full p-2 border rounded-md ${
+                    errors.age ? "border-red-500" : "border-gray-300"
+                  }`}
+                />
+              </FormField>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Position *
-              </label>
-              <input
-                {...register("position", { required: "Position is required" })}
-                className={`w-full p-2 border rounded-md ${
-                  errors.position ? "border-red-500" : "border-gray-300"
-                }`}
-              />
-              {errors.position && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.position.message}
-                </p>
-              )}
-            </div>
+              <FormField label="Position" error={errors.position} required>
+                <input
+                  id="position"
+                  {...register("position", {
+                    required: "Position is required",
+                  })}
+                  className={`w-full p-2 border rounded-md ${
+                    errors.position ? "border-red-500" : "border-gray-300"
+                  }`}
+                />
+              </FormField>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Department *
-              </label>
-              <select
-                {...register("department", {
-                  required: "Department is required",
-                })}
-                className={`w-full p-2 border rounded-md ${
-                  errors.department ? "border-red-500" : "border-gray-300"
-                }`}
-              >
-                <option value="">Select Department</option>
-                {departments.map((department) => (
-                  <option key={department.id} value={department.name}>
-                    {department.name}
-                  </option>
-                ))}
-              </select>
-              {errors.department && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.department.message}
-                </p>
-              )}
-            </div>
+              <FormField label="Department" error={errors.department} required>
+                <select
+                  id="department"
+                  {...register("department", {
+                    required: "Department is required",
+                  })}
+                  className={`w-full p-2 border rounded-md ${
+                    errors.department ? "border-red-500" : "border-gray-300"
+                  }`}
+                >
+                  <option value="">Select Department</option>
+                  {departments.map((department) => (
+                    <option key={department.id} value={department.name}>
+                      {department.name}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Employment Date *
-              </label>
-              <input
-                type="date"
-                {...register("employedOn", {
-                  required: "Employment date is required",
-                  // Don't convert to Date object here since we need string format for the input
-                })}
-                className={`w-full p-2 border rounded-md ${
-                  errors.employedOn ? "border-red-500" : "border-gray-300"
-                }`}
-                // No defaultValue needed - the form will handle it
-              />
-              {errors.employedOn && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.employedOn.message}
-                </p>
-              )}
-            </div>
+              <FormField label="Employment Date" error={errors.employedOn} required>
+                <input
+                  id="employmentDate"
+                  type="date"
+                  {...register("employedOn", {
+                    required: "Employment date is required",
+                  })}
+                  className={`w-full p-2 border rounded-md ${
+                    errors.employedOn ? "border-red-500" : "border-gray-300"
+                  }`}
+                />
+              </FormField>
 
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={mutation.isPending}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-              >
-                {mutation.isPending ? "Saving..." : "Save Employee"}
-              </button>
-            </div>
-          </form>
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isMutating}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {isMutating ? "Saving..." : "Save Employee"}
+                </button>
+              </div>
+            </form>
+          )}
         </DialogPanel>
       </div>
     </Dialog>
