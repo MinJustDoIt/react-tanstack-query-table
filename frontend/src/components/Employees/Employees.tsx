@@ -12,7 +12,7 @@ import { Table } from "../common/table/Table";
 import { TablePagination } from "../common/table/TablePagination";
 import { EmployeesFilter } from "./EmployeesFilter";
 
-const EmployeeTable = () => {
+const Employees = () => {
   // Use custom hooks for table controls and modal
   const {
     sorting,
@@ -113,4 +113,4 @@ const EmployeeTable = () => {
   );
 };
 
-export default EmployeeTable;
+export default Employees;

@@ -1,9 +1,9 @@
-import EmployeeTable from "../components/Employees/EmployeeTable";
+import Employees from "../components/Employees/Employees";
 
 const Home = () => {
   return (
     <div>
-      <EmployeeTable />
+      <Employees />
     </div>
   );
 };
