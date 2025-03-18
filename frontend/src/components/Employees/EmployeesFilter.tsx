@@ -1,6 +1,6 @@
 import { Department } from "../../types";
 
-interface FilterBarProps {
+interface EmployeesFilterProps {
   readonly nameFilter: string;
   readonly setNameFilter: (value: string) => void;
   readonly departmentFilter: string;
@@ -21,7 +21,7 @@ interface FilterBarProps {
   readonly onAddNew?: () => void;
 }
 
-export function FilterBar({
+export function EmployeesFilter({
   nameFilter,
   setNameFilter,
   departmentFilter,
@@ -30,7 +30,7 @@ export function FilterBar({
   setEmployedDateFilter,
   departments = [],
   onAddNew,
-}: FilterBarProps) {
+}: EmployeesFilterProps) {
   return (
     <div className="flex flex-wrap gap-4 mb-6 items-end">
       <div className="flex-1 min-w-[200px]">

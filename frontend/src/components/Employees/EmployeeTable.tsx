@@ -3,14 +3,14 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import EmployeeModal from "./modals/EmployeeModal";
-import { useTableControls } from "../hooks/useTableControls";
-import { useModal } from "../hooks/useModal";
-import { useEmployees, useDepartments } from "../hooks/useApi";
-import { useEmployeeColumns } from "../hooks/useEmployeeColumns";
-import { Table } from "./table/Table";
-import { TablePagination } from "./table/TablePagination";
-import { FilterBar } from "./filters/FilterBar";
+import EmployeeModal from "./EmployeeModal";
+import { useTableControls } from "../../hooks/useTableControls";
+import { useModal } from "../../hooks/useModal";
+import { useEmployees, useDepartments } from "../../hooks/useApi";
+import { useEmployeeColumns } from "../../hooks/useEmployeeColumns";
+import { Table } from "../common/table/Table";
+import { TablePagination } from "../common/table/TablePagination";
+import { EmployeesFilter } from "./EmployeesFilter";
 
 const EmployeeTable = () => {
   // Use custom hooks for table controls and modal
@@ -76,7 +76,7 @@ const EmployeeTable = () => {
   return (
     <div className="p-4 max-w-7xl mx-auto">
       {/* Using our reusable FilterBar component */}
-      <FilterBar
+      <EmployeesFilter
         nameFilter={nameFilter}
         setNameFilter={setNameFilter}
         departmentFilter={departmentFilter}

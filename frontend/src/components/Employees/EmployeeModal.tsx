@@ -4,7 +4,7 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Employee, Department } from "../../types";
 import { useEmployee, useEmployeeMutation } from "../../hooks/useApi";
-import { FormField } from "../form/FormField";
+import { FormField } from "../common/form/FormField";
 
 interface EmployeeModalProps {
   readonly isOpen: boolean;
