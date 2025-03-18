@@ -1,14 +1,12 @@
-import './App.css'
+import "./App.css";
+import EmployeeTable from "./components/EmployeeTable";
 
 function App() {
-
   return (
     <div>
-      <h1 className="text-3xl underline">
-        Hello World 
-      </h1>
+      <EmployeeTable />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

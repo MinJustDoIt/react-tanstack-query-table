@@ -7,13 +7,13 @@ const API_URL = "http://localhost:5555"; // Base URL for the API
 export const fetchEmployees = async (
   page: number,
   limit: number,
-  sort: string,
+  sortField: string,
   filters: Record<string, string>
 ): Promise<EmployeesResponse> => {
   const params = new URLSearchParams({
     page: String(page),
     limit: String(limit),
-    sort,
+    sort: sortField,
     ...filters,
   });
 
