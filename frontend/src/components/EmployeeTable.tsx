@@ -62,8 +62,9 @@ const EmployeeTable = () => {
       fetchEmployees(
         pagination.pageIndex + 1, // Backend use 1-based index
         pagination.pageSize,
-        sorting[0].id || "name",
-        filters
+        sorting[0]?.id || "name",
+        filters,
+        sorting[0]?.desc ? "desc" : "asc" // Pass the sort direction
       ),
     placeholderData: (previousData) => previousData,
   });

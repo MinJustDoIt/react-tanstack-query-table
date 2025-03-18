@@ -84,6 +84,7 @@ const paginate = (
  * - page (number): The page number (default is 1).
  * - limit (number): The number of records per page (default is 10).
  * - sort (string): The field to sort by (default is 'id').
+ * - order (string): The sort order ('asc' or 'desc', default is 'asc').
  * - filterName (string): Optional filter by employee name.
  * - filterDepartment (string): Optional filter by department.
  */
@@ -92,6 +93,7 @@ app.get("/employees", (req: Request, res: Response) => {
     page = "1",
     limit = "10",
     sort = "id",
+    order = "asc", // Add order parameter
     filterName = "",
     filterDepartment = "",
     filterEmployedBefore = "",
@@ -100,6 +102,7 @@ app.get("/employees", (req: Request, res: Response) => {
 
   const pageNum = parseInt(page as string);
   const limitNum = parseInt(limit as string);
+  const isDescending = (order as string).toLowerCase() === "desc";
 
   let filteredEmployees = employees;
 
@@ -139,8 +142,8 @@ app.get("/employees", (req: Request, res: Response) => {
 
   // Sort employees
   filteredEmployees.sort((a, b) => {
-    if (a[sort as keyof Employee] < b[sort as keyof Employee]) return -1;
-    if (a[sort as keyof Employee] > b[sort as keyof Employee]) return 1;
+    if (a[sort as keyof Employee] < b[sort as keyof Employee]) return isDescending ? 1 : -1;
+    if (a[sort as keyof Employee] > b[sort as keyof Employee]) return isDescending ? -1 : 1;
     return 0;
   });
 

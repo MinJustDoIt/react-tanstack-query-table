@@ -8,7 +8,8 @@ export const fetchEmployees = async (
   page: number,
   limit: number,
   sortField: string,
-  filters: Record<string, string>
+  filters: Record<string, string>,
+  sortDirection?: 'asc' | 'desc' // Add sort direction parameter
 ): Promise<EmployeesResponse> => {
   const params = new URLSearchParams({
     page: String(page),
@@ -16,6 +17,11 @@ export const fetchEmployees = async (
     sort: sortField,
     ...filters,
   });
+
+  // Add sort direction if provided
+  if (sortDirection) {
+    params.append("order", sortDirection);
+  }
 
   // Make a GET request to fetch employees
   const response = await axios.get<EmployeesResponse>(
