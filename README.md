@@ -5,7 +5,7 @@ cd backend
 npm install
 npm run start
 ```
-
+To run the frontend:
 ```
 cd frontend
 npm install
